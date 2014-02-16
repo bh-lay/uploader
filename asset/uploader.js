@@ -1,7 +1,6 @@
 ﻿/**
- * @author bh-lay
+ *	@author bh-lay
  * 
- * @github : https://github.com/bh-lay/uploader 
  */
 window.util = window.util || {};
 /**
@@ -182,18 +181,20 @@ window.util = window.util || {};
 		var this_up = this;
 		//事件堆
 		this.events = {};
-		this.action = param['action'] || "/weibo/index.php?view=ajax&action=uploadAvatar&jsOptimization=1";
+		this.action = param['action'] || null;
 		//绑定上传方法的DOM
 		this.dom = param['dom'];
 		this.fileinputname = param['fileinputname'] || 'photos';
 		//是否可上传
 		this.can_upload = true;
 		
-		createSingleUp.call(this);
 		this.on('startUpload',function(){
 			createSingleUp.call(this_up);
 		});
-		
+		//为了提供异步接口，创建此定时器
+		setTimeout(function(){
+			createSingleUp.call(this_up);
+		},50);
 	}
 	uploader.prototype = {
 		'on' : function (eventName,callback){
