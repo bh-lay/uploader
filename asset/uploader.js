@@ -1,5 +1,6 @@
 ﻿/**
  *	@author bh-lay
+ *	@github https://github.com/bh-lay/uploader
  * 
  */
 window.util = window.util || {};
@@ -118,28 +119,38 @@ window.util = window.util || {};
 			var strData = this.body.innerHTML;
 			var jsonData = {ret : 201};
 			
+			//移除上传模块dom
+			uploaderDom.remove();
+			
+			if(!this_up.responseParser){
+				return
+			}
+			
 			if(strData.length>5){
 				jsonData = eval('(' + strData + ')');
 			}
-			if(jsonData && jsonData.ret == 200){
-				var result = [];
-				for(var i in jsonData.data){
-					result.push({
-						'url' : jsonData.data[i]['src'],
-						'name' : jsonData.data[i]['name']
-					});
-				}
-				//触发上传完成事件
+			var parserData = this_up.responseParser(jsonData);
+			//console.log(2,parserData);
+			
+			if(typeof(parserData) != 'object'){
+				this_up.emit('fail',[ID]);
+				return
+			}
+			//console.log(3);
+			if(parserData['files'] && parserData['files']['length'] > 0){
+				//console.log(4);
 				this_up.emit('success',[
 					ID,
-					result
+					parserData['files'],
+					parserData['extra']
 				]);
 			}else{
-				//触发上传失败事件
-				this_up.emit('success',[ID]);
+				//console.log(5);
+				this_up.emit('fail',[
+					ID,
+					parserData['extra']
+				]);
 			}
-			//移除上传模块dom
-			uploaderDom.remove();
 		});
 	}
 	//构造新的单次上传模块
@@ -187,6 +198,7 @@ window.util = window.util || {};
 		this.fileinputname = param['fileinputname'] || 'photos';
 		//是否可上传
 		this.can_upload = true;
+		this.responseParser = param['responseParser'] || null;
 		
 		this.on('startUpload',function(){
 			createSingleUp.call(this_up);
