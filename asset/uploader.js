@@ -116,41 +116,46 @@ window.util = window.util || {};
 			}
 		});
 		iframe_load(iframe,function(){
-			var strData = this.body.innerHTML;
-			var jsonData = {ret : 201};
-			
+			var responseTXT = this.body.innerHTML;
 			//移除上传模块dom
 			uploaderDom.remove();
-			
+			//未定义格式化数据，直接退出计算
 			if(!this_up.responseParser){
 				return
 			}
-			
-			if(strData.length>5){
-				jsonData = eval('(' + strData + ')');
-			}
-			var parserData = this_up.responseParser(jsonData);
-			//console.log(2,parserData);
-			
-			if(typeof(parserData) != 'object'){
-				this_up.emit('fail',[ID]);
-				return
-			}
-			//console.log(3);
-			if(parserData['files'] && parserData['files']['length'] > 0){
-				//console.log(4);
-				this_up.emit('success',[
-					ID,
-					parserData['files'],
-					parserData['extra']
-				]);
-			}else{
-				//console.log(5);
+			//尝试去解析
+			try{
+				var jsonData = eval('(' + responseTXT + ')');
+				//数据交由开发者格式化
+				var parserData = this_up.responseParser(jsonData);
+				//console.log(2,parserData);
+
+				if(typeof(parserData) != 'object'){
+					this_up.emit('fail',[ID]);
+					return
+				}
+				//console.log(3);
+				if(parserData['files'] && parserData['files']['length'] > 0){
+					//console.log(4);
+					this_up.emit('success',[
+						ID,
+						parserData['files'],
+						parserData['extra']
+					]);
+				}else{
+					//console.log(5);
+					this_up.emit('fail',[
+						ID,
+						parserData['extra']
+					]);
+				}
+			}catch(e){
 				this_up.emit('fail',[
 					ID,
-					parserData['extra']
+					'服务器数据异常！'
 				]);
 			}
+			
 		});
 	}
 	//构造新的单次上传模块
@@ -226,6 +231,9 @@ window.util = window.util || {};
 			for(var i=0,total=this.events[eventName].length;i<total;i++){
 				this.events[eventName][i].apply(this.event_global || this , args);
 			}
+		},
+		'destory' : function(){
+			//FIXME
 		}
 	};
 	exports.uploader = uploader;
