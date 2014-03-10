@@ -1,7 +1,7 @@
 ﻿/**
  *	@author bh-lay
  *	@github https://github.com/bh-lay/uploader
- *  @updata 2014-3-10 15:38
+ *  @updata 2014-3-10 22:25
  * 
  */
 window.util = window.util || {};
@@ -16,8 +16,11 @@ window.util = window.util || {};
 		'<form method="post" action="{action}" enctype="multipart/form-data" name="uploader" target="uploader{ID}">',
 			//请选择图片
 			'<input name="{fileinputname}" type="file" multiple="multiple" class="uploader_btn" title="\u8BF7\u9009\u62E9\u56FE\u7247"/>',
+			'{data}',
 		'</form>',
 	'</div>'].join('');
+	
+	var input_tpl = '<input type="hidden" name="{name}" value="{value}" />';
 	
 	var up_css = ['<style type="text/css" data-module="birthday">',
 		'.uploaderCnt{width:0px;height:0px;position:absolute;left:0px;top:0px;z-index:1000000;}',
@@ -26,6 +29,7 @@ window.util = window.util || {};
 			'opacity:0;filter:Alpha(opacity=0);cursor:pointer;}',
 		//	'opacity:0;filter:Alpha(opacity=0);cursor:pointer;opacity:1;background:#333;}',
 	'</style>'].join('');
+	
 	//创建工作环境
 	var global_cnt = $(upCnt_tpl);
 
@@ -44,6 +48,34 @@ window.util = window.util || {};
 				load&&load.call(iframe.contentDocument);
 			};
 		}
+	}
+	//创建新的html
+	function buildDom(){
+		var this_up = this;
+		var data_html = '';
+		var data = this.data;
+		for(var i in data){
+			data_html += input_tpl.replace(/{(\w*)}/g,function(result,key){
+				if(key == 'name'){
+					return i;
+				}else if(key == 'value'){
+					return data[i]
+				}
+			});
+		}
+		
+		var html = up_tpl.replace(/{(\w*)}/g,function(result,key){
+			if(key == 'ID'){
+				return this_up.ID
+			}else if(key == 'action'){
+				return this_up.action
+			}else if(key == 'fileinputname'){
+				return this_up.fileinputname
+			}else if(key == "data"){
+				return data_html;
+			}
+		});
+		return $(html);
 	}
 	//获取文件信息
 	function getFilesFromInput(input){
@@ -80,8 +112,9 @@ window.util = window.util || {};
 	//构造新的单次上传模块
 	function SingleUp(param){
 		var this_up = this;
-		this.action = param.action;
 		this.ID = ++staticID;
+		this.action = param.action;
+		this.data = param['data'] || {};
 		
 		//状态 等待上传|上传中
 		//    wait | uploading
@@ -96,18 +129,7 @@ window.util = window.util || {};
 		this.onFail = param.onFail || null;
 		this.onSuccess = param.onSuccess || null;
 		
-		//创建新的html
-		var html = up_tpl.replace(/{(\w*)}/g,function(){
-			var key = arguments[1];
-			if(key == 'ID'){
-				return this_up.ID
-			}else if(key == 'action'){
-				return this_up.action
-			}else if(key == 'fileinputname'){
-				return this_up.fileinputname
-			}
-		});
-		this.dom = $(html);
+		this.dom = buildDom.call(this);
 		
 		var position = param.position;
 		
@@ -224,6 +246,7 @@ window.util = window.util || {};
 		//事件堆
 		this.events = {};
 		this.action = param['action'] || null;
+		this.data = param['data'] || {};
 		//绑定上传方法的DOM
 		this.dom = param['dom'];
 		this.fileinputname = param['fileinputname'] || 'photos';
@@ -261,6 +284,7 @@ window.util = window.util || {};
 			var this_up = this;
 			var newUp = new SingleUp({
 				'action' : this.action,
+				'data' : this.data,
 				'responseParser' : this.responseParser,
 				'position' : {
 					'top' : offset.top,
@@ -298,3 +322,9 @@ window.util = window.util || {};
 	};
 	exports.uploader = uploader;
 })(window.util);
+
+//提供CommonJS规范的接口
+define && define(function(require,exports,module){
+	//对外接口
+	return window.util.uploader;
+});
