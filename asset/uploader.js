@@ -1,7 +1,7 @@
 ﻿/**
  *	@author bh-lay
  *	@github https://github.com/bh-lay/uploader
- *  @updata 2014-3-13 21:08
+ *  @updata 2014-3-26 17:10
  * 
  */
 window.util = window.util || {};
@@ -105,7 +105,7 @@ window.util = window.util || {};
 		try{
 			output = eval('(' + input + ')');
 		}catch(e){
-			output = 'fail';
+			output = null;
 		}
 		return output;
 	}
@@ -152,6 +152,8 @@ window.util = window.util || {};
 	}
 	//销毁自己
 	SingleUp.prototype.destory = function(){
+			console.log('destory-2');
+			console.log('---------------');
 		this.onHide && this.onHide();
 		if(this.status == 'wait'){
 			this.dom.remove();
@@ -166,8 +168,8 @@ window.util = window.util || {};
 		//是否已格式化数据方法
 		if(this.responseParser){
 			var jsonData = parseJSON(responseTXT);
-			if(jsonData == 'fail'){
-					//服务器数据异常！
+			if(jsonData == null){
+				//服务器数据异常！
 				this.onFail && this.onFail(ID,'\u670D\u52A1\u5668\u6570\u636E\u5F02\u5E38\uFF01');
 			}else{
 				//数据交由开发者格式化
@@ -184,6 +186,7 @@ window.util = window.util || {};
 				}
 			}
 		}else{
+			//需要定义responseParser
 			this.onFail && this.onFail(ID,'you need define method : responseParser! ');
 		}
 		//销毁单次上传模块
@@ -197,10 +200,9 @@ window.util = window.util || {};
 		var iframe = this.dom.find('iframe')[0];
 		var ID = this.ID;
 		//事件处理
-		uploaderDom.on('mouseleave',function(){
-	//		setTimeout(function(){
-				this_up.destory();
-		//	},100);
+		
+		uploaderDom.on('mouseout',function(){
+			this_up.destory();
 		}).on('mousedown',function(){
 			this_up.onMousedown && this_up.onMousedown();
 		}).on('mousemove',function(e){
@@ -257,13 +259,13 @@ window.util = window.util || {};
 		//为按钮绑定悬停事件
 		var delay;
 		this.dom.mouseenter(function(){
-			clearTimeout(delay);
+	//		clearTimeout(delay);
 			var btn = $(this);
-			delay = setTimeout(function(){
+	//		delay = setTimeout(function(){
 				this_up.createSingleUp(btn);
-			},100);
+	//		},80);
 		}).mouseleave(function(){
-			clearTimeout(delay);
+	//		clearTimeout(delay);
 		});
 	}
 	uploader.prototype = {
