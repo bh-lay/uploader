@@ -1,7 +1,7 @@
 ﻿/**
  *	@author bh-lay
  *	@github https://github.com/bh-lay/uploader
- *  @updata 2014-3-26 17:10
+ *  @updata 2014-4-1 22:59
  * 
  */
 window.util = window.util || {};
@@ -120,7 +120,7 @@ window.util = window.util || {};
 		//    wait | uploading
 		this.status = 'wait';
 		this.responseParser = param['responseParser'] || null;
-		this.fileinputname = param['fileinputname'] || 'photos';
+		this.fileinputname = param['fileinputname'] || 'photos111';
 		//事件集
 		this.onHide = param.onHide || null;
 		this.onMousedown = param.onMousedown || null;
@@ -251,7 +251,7 @@ window.util = window.util || {};
 		this.data = param['data'] || {};
 		//绑定上传方法的DOM
 		this.dom = param['dom'];
-		this.fileinputname = param['fileinputname'] || 'photos';
+		this.fileinputname = param['fileinputname'] || 'photos121';
 		//是否可上传
 		this.can_upload = true;
 		this.responseParser = param['responseParser'] || null;
@@ -294,6 +294,7 @@ window.util = window.util || {};
 			var newUp = new SingleUp({
 				'action' : this.action,
 				'data' : this.data,
+				'fileinputname' : this.fileinputname,
 				'responseParser' : this.responseParser,
 				'position' : {
 					'top' : offset.top,
