@@ -139,9 +139,8 @@ window.util = window.util || {};
 			'width' : position.width,
 			'height' : position.height
 		});
-		
-		global_cnt.append(this.dom);
-		
+		var DOM = this.dom;
+		global_cnt.append(DOM);
 		/**
 		 * 这个定时器是为了处理IE7异步创建iframe的BUG
 		 * 如果你有好的办法，请  mail:bh_lay@126.com
@@ -152,8 +151,8 @@ window.util = window.util || {};
 	}
 	//销毁自己
 	SingleUp.prototype.destory = function(){
-			console.log('destory-2');
-			console.log('---------------');
+//			console.log('destory-2');
+//			console.log('---------------');
 		this.onHide && this.onHide();
 		if(this.status == 'wait'){
 			this.dom.remove();
@@ -200,9 +199,10 @@ window.util = window.util || {};
 		var iframe = this.dom.find('iframe')[0];
 		var ID = this.ID;
 		//事件处理
-		
 		uploaderDom.on('mouseout',function(){
-			this_up.destory();
+		//	this_up.destory();
+			//FIXME ie11 destory bug
+			uploaderDom.hide();
 		}).on('mousedown',function(){
 			this_up.onMousedown && this_up.onMousedown();
 		}).on('mousemove',function(e){
