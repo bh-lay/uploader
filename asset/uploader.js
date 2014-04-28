@@ -1,7 +1,7 @@
 ﻿/**
  *	@author bh-lay
  *	@github https://github.com/bh-lay/uploader
- *  @updata 2014-4-1 22:59
+ *  @updata 2014-4-28 15:46
  * 
  */
 window.util = window.util || {};
@@ -105,7 +105,7 @@ window.util = window.util || {};
 		try{
 			output = eval('(' + input + ')');
 		}catch(e){
-			output = null;
+			output = 'fail';
 		}
 		return output;
 	}
@@ -120,7 +120,7 @@ window.util = window.util || {};
 		//    wait | uploading
 		this.status = 'wait';
 		this.responseParser = param['responseParser'] || null;
-		this.fileinputname = param['fileinputname'] || 'photos111';
+		this.fileinputname = param['fileinputname'] || 'photos';
 		//事件集
 		this.onHide = param.onHide || null;
 		this.onMousedown = param.onMousedown || null;
@@ -139,8 +139,9 @@ window.util = window.util || {};
 			'width' : position.width,
 			'height' : position.height
 		});
-		var DOM = this.dom;
-		global_cnt.append(DOM);
+		
+		global_cnt.append(this.dom);
+		
 		/**
 		 * 这个定时器是为了处理IE7异步创建iframe的BUG
 		 * 如果你有好的办法，请  mail:bh_lay@126.com
@@ -151,8 +152,6 @@ window.util = window.util || {};
 	}
 	//销毁自己
 	SingleUp.prototype.destory = function(){
-//			console.log('destory-2');
-//			console.log('---------------');
 		this.onHide && this.onHide();
 		if(this.status == 'wait'){
 			this.dom.remove();
@@ -167,8 +166,8 @@ window.util = window.util || {};
 		//是否已格式化数据方法
 		if(this.responseParser){
 			var jsonData = parseJSON(responseTXT);
-			if(jsonData == null){
-				//服务器数据异常！
+			if(jsonData == 'fail'){
+					//服务器数据异常！
 				this.onFail && this.onFail(ID,'\u670D\u52A1\u5668\u6570\u636E\u5F02\u5E38\uFF01');
 			}else{
 				//数据交由开发者格式化
@@ -185,7 +184,6 @@ window.util = window.util || {};
 				}
 			}
 		}else{
-			//需要定义responseParser
 			this.onFail && this.onFail(ID,'you need define method : responseParser! ');
 		}
 		//销毁单次上传模块
@@ -199,10 +197,10 @@ window.util = window.util || {};
 		var iframe = this.dom.find('iframe')[0];
 		var ID = this.ID;
 		//事件处理
-		uploaderDom.on('mouseout',function(){
-		//	this_up.destory();
-			//FIXME ie11 destory bug
-			uploaderDom.hide();
+		uploaderDom.on('mouseleave',function(){
+	//		setTimeout(function(){
+				this_up.destory();
+		//	},100);
 		}).on('mousedown',function(){
 			this_up.onMousedown && this_up.onMousedown();
 		}).on('mousemove',function(e){
@@ -251,7 +249,7 @@ window.util = window.util || {};
 		this.data = param['data'] || {};
 		//绑定上传方法的DOM
 		this.dom = param['dom'];
-		this.fileinputname = param['fileinputname'] || 'photos121';
+		this.fileinputname = param['fileinputname'] || 'photos';
 		//是否可上传
 		this.can_upload = true;
 		this.responseParser = param['responseParser'] || null;
@@ -259,13 +257,13 @@ window.util = window.util || {};
 		//为按钮绑定悬停事件
 		var delay;
 		this.dom.mouseenter(function(){
-	//		clearTimeout(delay);
+			clearTimeout(delay);
 			var btn = $(this);
-	//		delay = setTimeout(function(){
+			delay = setTimeout(function(){
 				this_up.createSingleUp(btn);
-	//		},80);
+			},100);
 		}).mouseleave(function(){
-	//		clearTimeout(delay);
+			clearTimeout(delay);
 		});
 	}
 	uploader.prototype = {
@@ -294,7 +292,6 @@ window.util = window.util || {};
 			var newUp = new SingleUp({
 				'action' : this.action,
 				'data' : this.data,
-				'fileinputname' : this.fileinputname,
 				'responseParser' : this.responseParser,
 				'position' : {
 					'top' : offset.top,
@@ -317,7 +314,7 @@ window.util = window.util || {};
 					this_up.emit('success',[ID,files,extra]);
 				},
 				'onFail' : function(ID,extra){
-					this_up.emit('fail',[ID,extra]);
+					this_up.emit('error',[ID,extra]);
 				},
 				'onHide' : function(){
 					BTN.removeClass('hover');
