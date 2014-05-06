@@ -1,7 +1,8 @@
 ﻿/**
  *	@author bh-lay
  *	@github https://github.com/bh-lay/uploader
- *  @updata 2014-4-28 15:46
+ *  @updata 2014-5-6 17:03
+ * Function depend on Jquery!
  * 
  */
 window.util = window.util || {};
@@ -22,8 +23,9 @@ window.util = window.util || {};
 	
 	//创建工作环境
 	var global_cnt = $(upCnt_tpl);
-
-	$('body').append(global_cnt);
+	$(function(){
+		$('body').append(global_cnt);
+	});
 	var private_isSupportTouch = "ontouchend" in document ? true : false;
 	
 	//iframe加载事件监听方法
